@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
+use Validator;
 
 class UsuarioController extends Controller
 {
@@ -21,26 +22,26 @@ class UsuarioController extends Controller
                 $term = $request->get('q');
                 $q->where(function ($w) use ($term) {
                     $w->where('nome', 'ilike', "%{$term}%")
-                      ->orWhere('email', 'ilike', "%{$term}%");
+                        ->orWhere('email', 'ilike', "%{$term}%");
                 });
             })
-            ->when($request->filled('nivel_acesso'), fn ($q) => $q->where('nivel_acesso', $request->nivel_acesso))
-            ->when($request->filled('ativo'), fn ($q) => $q->where('ativo', filter_var($request->ativo, FILTER_VALIDATE_BOOLEAN)));
+            ->when($request->filled('nivel_acesso'), fn($q) => $q->where('nivel_acesso', $request->nivel_acesso))
+            ->when($request->filled('ativo'), fn($q) => $q->where('ativo', filter_var($request->ativo, FILTER_VALIDATE_BOOLEAN)));
 
-        $perPage = (int)($request->get('per_page', 15));
+        $perPage = (int) ($request->get('per_page', 15));
 
         $page = $query->orderByDesc('id')->paginate($perPage);
 
         // Mapeia data_criacao como created_at
         $page->getCollection()->transform(function ($u) {
             return [
-                'id'            => $u->id,
-                'nome'          => $u->nome,
-                'email'         => $u->email,
-                'nivel_acesso'  => $u->nivel_acesso,
-                'ativo'         => (bool)$u->ativo,
-                'observacoes'   => $u->observacoes,
-                'data_criacao'  => optional($u->created_at)->toISOString(),
+                'id' => $u->id,
+                'nome' => $u->nome,
+                'email' => $u->email,
+                'nivel_acesso' => $u->nivel_acesso,
+                'ativo' => (bool) $u->ativo,
+                'observacoes' => $u->observacoes,
+                'data_criacao' => optional($u->created_at)->toISOString(),
             ];
         });
 
@@ -53,14 +54,23 @@ class UsuarioController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'nome'          => ['required', 'string', 'max:150'],
-            'email'         => ['required', 'string', 'email', 'max:150', 'unique:users,email'],
-            'senha'         => ['required', 'string', 'min:6', 'max:255'],
-            'nivel_acesso'  => ['required', Rule::in(['admin','veterinario','cliente','operador'])],
-            'ativo'         => ['sometimes', 'boolean'],
-            'observacoes'   => ['nullable', 'string', 'max:5000'],
+        $validator = Validator::make($request->all(), [
+            'nome' => ['sometimes', 'required', 'string', 'max:150'],
+            'email' => ['required', 'string', 'email', 'max:150', 'unique:users,email'],
+            'senha' => ['sometimes', 'required', 'string', 'min:6', 'max:255'],
+            'nivel_acesso' => ['sometimes', 'required', Rule::in(['admin', 'veterinario', 'cliente', 'operador'])],
+            'ativo' => ['sometimes', 'boolean'],
+            'observacoes' => ['nullable', 'string', 'max:5000'],
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Erro de validacao nos dados enviados.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $data = $validator->validated();
 
         $user = new User();
         $user->nome = $data['nome'];
@@ -76,14 +86,14 @@ class UsuarioController extends Controller
         return response()->json([
             'message' => 'Usuário criado com sucesso.',
             'data' => [
-                'id'            => $user->id,
-                'nome'          => $user->nome,
-                'name'          => $user->nome,
-                'email'         => $user->email,
-                'nivel_acesso'  => $user->nivel_acesso,
-                'ativo'         => (bool)$user->ativo,
-                'observacoes'   => $user->observacoes,
-                'data_criacao'  => optional($user->created_at)->toISOString(),
+                'id' => $user->id,
+                'nome' => $user->nome,
+                'name' => $user->nome,
+                'email' => $user->email,
+                'nivel_acesso' => $user->nivel_acesso,
+                'ativo' => (bool) $user->ativo,
+                'observacoes' => $user->observacoes,
+                'data_criacao' => optional($user->created_at)->toISOString(),
             ]
         ], 201);
     }
@@ -94,15 +104,23 @@ class UsuarioController extends Controller
      */
     public function show(User $user)
     {
-        return response()->json([
-            'id'            => $user->id,
-            'nome'          => $user->nome,
-            'email'         => $user->email,
-            'nivel_acesso'  => $user->nivel_acesso,
-            'ativo'         => (bool)$user->ativo,
-            'observacoes'   => $user->observacoes,
-            'data_criacao'  => optional($user->created_at)->toISOString(),
-        ]);
+        try {
+            $usuario = User::findOrFail($user->id);
+
+            return response()->json([
+                'id' => $usuario->id,
+                'nome' => $usuario->nome,
+                'email' => $usuario->email,
+                'nivel_acesso' => $usuario->nivel_acesso,
+                'ativo' => (bool) $usuario->ativo,
+                'observacoes' => $usuario->observacoes,
+                'data_criacao' => optional($usuario->created_at)->toISOString(),
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Usuario nao encontrado.'
+            ], 404);
+        }
     }
 
     /**
@@ -111,36 +129,55 @@ class UsuarioController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $data = $request->validate([
-            'nome'          => ['sometimes', 'required', 'string', 'max:150'],
-            'email'         => ['sometimes', 'required', 'string', 'email', 'max:150', Rule::unique('users','email')->ignore($user->id)],
-            'senha'         => ['sometimes', 'required', 'string', 'min:6', 'max:255'],
-            'nivel_acesso'  => ['sometimes', 'required', Rule::in(['admin','veterinario','cliente','operador'])],
-            'ativo'         => ['sometimes', 'boolean'],
-            'observacoes'   => ['nullable', 'string', 'max:5000'],
+
+        $validator = Validator::make($request->all(), [
+            'nome' => ['sometimes', 'required', 'string', 'max:150'],
+            'email' => ['sometimes', 'required', 'string', 'email', 'max:150', Rule::unique('users', 'email')->ignore($user->id)],
+            'senha' => ['sometimes', 'required', 'string', 'min:6', 'max:255'],
+            'nivel_acesso' => ['sometimes', 'required', Rule::in(['admin', 'veterinario', 'cliente', 'operador'])],
+            'ativo' => ['sometimes', 'boolean'],
+            'observacoes' => ['nullable', 'string', 'max:5000'],
         ]);
 
-        if (array_key_exists('nome', $data))          $user->nome = $data['nome'];
-        if (array_key_exists('name', $data))          $user->name = $data['nome'];
-        if (array_key_exists('email', $data))         $user->email = $data['email'];
-        if (array_key_exists('senha', $data))         $user->senha = Hash::make($data['senha']);
-        if (array_key_exists('password', $data))      $user->password = Hash::make($data['senha']);
-        if (array_key_exists('nivel_acesso', $data))  $user->nivel_acesso = $data['nivel_acesso'];
-        if (array_key_exists('ativo', $data))         $user->ativo = $data['ativo'];
-        if (array_key_exists('observacoes', $data))   $user->observacoes = $data['observacoes'];
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Erro de validacao nos dados enviados.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $data = $validator->validated();
+
+        if (array_key_exists('nome', $data))
+            $user->nome = $data['nome'];
+        if (array_key_exists('name', $data))
+            $user->name = $data['nome'];
+        if (array_key_exists('email', $data))
+            $user->email = $data['email'];
+        if (array_key_exists('senha', $data))
+            $user->senha = Hash::make($data['senha']);
+        if (array_key_exists('password', $data))
+            $user->password = Hash::make($data['senha']);
+        if (array_key_exists('nivel_acesso', $data))
+            $user->nivel_acesso = $data['nivel_acesso'];
+        if (array_key_exists('ativo', $data))
+            $user->ativo = $data['ativo'];
+        if (array_key_exists('observacoes', $data))
+            $user->observacoes = $data['observacoes'];
+
 
         $user->save();
 
         return response()->json([
-            'message' => 'Usuário atualizado com sucesso.',
+            'message' => 'Usuario atualizado com sucesso.',
             'data' => [
-                'id'            => $user->id,
-                'nome'          => $user->nome,
-                'email'         => $user->email,
-                'nivel_acesso'  => $user->nivel_acesso,
-                'ativo'         => (bool)$user->ativo,
-                'observacoes'   => $user->observacoes,
-                'data_criacao'  => optional($user->created_at)->toISOString(),
+                'id' => $user->id,
+                'nome' => $user->nome,
+                'email' => $user->email,
+                'nivel_acesso' => $user->nivel_acesso,
+                'ativo' => (bool) $user->ativo,
+                'observacoes' => $user->observacoes,
+                'data_criacao' => optional($user->created_at)->toISOString(),
             ]
         ]);
     }

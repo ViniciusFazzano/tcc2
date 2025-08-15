@@ -1,0 +1,231 @@
+openapi: 3.0.3
+info:
+  title: TCC – API de users (Laravel + Sanctum)
+  version: "1.0.0"
+  description: |
+    API protegida por Bearer Token (Laravel Sanctum).  
+    - Gere o token em **POST /login**.  
+    - Envie **Authorization: Bearer {token}** nas rotas protegidas.  
+servers:
+  - url: http://localhost/api
+    description: Ambiente local
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: "Personal Access Token (Sanctum)"
+  schemas:
+    User:
+      type: object
+      properties:
+        id:            { type: integer, format: int64, example: 1 }
+        nome:          { type: string, maxLength: 150, example: "João Silva" }
+        email:         { type: string, format: email, maxLength: 150, example: "joao@email.com" }
+        nivel_acesso:  { type: string, enum: [admin, veterinario, cliente, operador], example: admin }
+        ativo:         { type: boolean, example: true }
+        observacoes:   { type: string, nullable: true, maxLength: 5000, example: "user VIP" }
+        data_criacao:  { type: string, format: date-time, example: "2025-08-14T19:35:20.000000Z" }
+    UserCreate:
+      type: object
+      required: [nome, email, senha, nivel_acesso]
+      properties:
+        nome:          { type: string, maxLength: 150 }
+        email:         { type: string, format: email, maxLength: 150 }
+        senha:         { type: string, minLength: 6, maxLength: 255 }
+        nivel_acesso:  { type: string, enum: [admin, veterinario, cliente, operador] }
+        ativo:         { type: boolean, default: true }
+        observacoes:   { type: string, nullable: true, maxLength: 5000 }
+    UserUpdate:
+      type: object
+      description: Todos os campos são opcionais (regra "sometimes")
+      properties:
+        nome:          { type: string, maxLength: 150 }
+        email:         { type: string, format: email, maxLength: 150 }
+        senha:         { type: string, minLength: 6, maxLength: 255 }
+        nivel_acesso:  { type: string, enum: [admin, veterinario, cliente, operador] }
+        ativo:         { type: boolean }
+        observacoes:   { type: string, nullable: true, maxLength: 5000 }
+    LoginRequest:
+      type: object
+      required: [email, senha]
+      properties:
+        email: { type: string, format: email, example: "admin@exemplo.com" }
+        senha: { type: string, example: "minhasenha" }
+    LoginResponse:
+      type: object
+      properties:
+        message:    { type: string, example: "Autenticado com sucesso." }
+        token:      { type: string, example: "1|uPp3rL0ngOpaqueSanctumToken..." }
+        token_type: { type: string, example: "Bearer" }
+        user:       { $ref: "#/components/schemas/User" }
+    ApiMessageUser:
+      type: object
+      properties:
+        message: { type: string, example: "user atualizado com sucesso." }
+        data:    { $ref: "#/components/schemas/User" }
+    ApiMessage:
+      type: object
+      properties:
+        message: { type: string, example: "Operação realizada com sucesso." }
+    Error:
+      type: object
+      properties:
+        message: { type: string, example: "Rota não encontrada." }
+    ValidationError:
+      type: object
+      properties:
+        message: { type: string, example: "Erro de validação nos dados enviados." }
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+          example:
+            email: ["O campo email é obrigatório."]
+security:
+  - BearerAuth: []   # aplica Bearer em tudo...
+paths:
+  /login:
+    post:
+      security: []   # ...exceto aqui
+      tags: [Auth]
+      summary: Autenticar e gerar token (Sanctum)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginRequest" }
+      responses:
+        "200":
+          description: Autenticado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LoginResponse" }
+        "401":
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "422":
+          description: Erro de validação
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValidationError" }
+  /user:
+    get:
+      tags: [Users]
+      summary: Listar users
+      responses:
+        "200":
+          description: Lista de users
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/User" }
+        "401":
+          description: Não autenticado
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    post:
+      tags: [Users]
+      summary: Criar user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UserCreate" }
+      responses:
+        "201":
+          description: Criado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiMessageUser" }
+        "401":
+          description: Não autenticado
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "422":
+          description: Erro de validação
+          content: { application/json: { schema: { $ref: "#/components/schemas/ValidationError" } } }
+  /user/{user}:
+    parameters:
+      - in: path
+        name: user
+        required: true
+        schema: { type: integer, format: int64, example: 1 }
+    get:
+      tags: [Users]
+      summary: Detalhar user
+      responses:
+        "200":
+          description: user encontrado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+        "401":
+          description: Não autenticado
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "404":
+          description: Não encontrado
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    put:
+      tags: [Users]
+      summary: Atualizar user (total)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UserUpdate" }
+      responses:
+        "200":
+          description: Atualizado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiMessageUser" }
+        "401":
+          description: Não autenticado
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "404":
+          description: Não encontrado
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "422":
+          description: Erro de validação
+          content: { application/json: { schema: { $ref: "#/components/schemas/ValidationError" } } }
+    patch:
+      tags: [Users]
+      summary: Atualizar user (parcial)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UserUpdate" }
+      responses:
+        "200":
+          description: Atualizado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiMessageUser" }
+        "401":
+          description: Não autenticado
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "404":
+          description: Não encontrado
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "422":
+          description: Erro de validação
+          content: { application/json: { schema: { $ref: "#/components/schemas/ValidationError" } } }
+    delete:
+      tags: [Users]
+      summary: Remover user
+      responses:
+        "200":
+          description: Removido
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApiMessage" }
+        "401":
+          description: Não autenticado
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "404":
+          description: Não encontrado
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
