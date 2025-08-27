@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PedidoController;
+use App\Http\Controllers\Api\ProdutoController;
 use App\Http\Controllers\Api\UsuarioController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,7 +17,7 @@ Route::prefix('v1')->group(function () {
     // protegido por Sanctum (opcional)
     // Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('usuarios', UsuarioController::class);
-    Route::apiResource('pedidos', PedidoController::class);
+    Route::apiResource('produtos', ProdutoController::class);
 
     // });
 });

@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Pedido;
+use App\Models\Produto;
 use Illuminate\Http\Request;
 use Validator;
 
-class PedidoController extends Controller
+class ProdutoController extends Controller
 {
     /**
-     * GET /api/pedidos
+     * GET /api/produtos
      * Lista paginada com filtros simples.
      * Filtros suportados:
      *  - q: busca por nome, ncm, observacao
@@ -22,7 +22,7 @@ class PedidoController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Pedido::query()
+        $query = Produto::query()
             ->when($request->filled('q'), function ($q) use ($request) {
                 $term = $request->get('q');
                 $q->where(function ($w) use ($term) {
@@ -61,7 +61,7 @@ class PedidoController extends Controller
     }
 
     /**
-     * POST /api/pedidos
+     * POST /api/produtos
      * Cria um pedido.
      */
     public function store(Request $request)
@@ -83,7 +83,7 @@ class PedidoController extends Controller
 
         $data = $validator->validated();
 
-        $pedido = new Pedido();
+        $pedido = new Produto();
         $pedido->nome = $data['nome'];
         $pedido->preco = (float) $data['preco'];
         $pedido->estoque = (int) $data['estoque'];
@@ -92,7 +92,7 @@ class PedidoController extends Controller
         $pedido->save();
 
         return response()->json([
-            'message' => 'Pedido criado com sucesso.',
+            'message' => 'Produto criado com sucesso.',
             'data' => [
                 'id' => $pedido->id,
                 'nome' => $pedido->nome,
@@ -106,10 +106,10 @@ class PedidoController extends Controller
     }
 
     /**
-     * GET /api/pedidos/{pedido}
+     * GET /api/produtos/{pedido}
      * Mostra um pedido.
      */
-    public function show(Pedido $pedido)
+    public function show(Produto $pedido)
     {
         return response()->json([
             'id' => $pedido->id,
@@ -123,10 +123,10 @@ class PedidoController extends Controller
     }
 
     /**
-     * PUT/PATCH /api/pedidos/{pedido}
+     * PUT/PATCH /api/produtos/{pedido}
      * Atualiza um pedido.
      */
-    public function update(Request $request, Pedido $pedido)
+    public function update(Request $request, Produto $pedido)
     {
         $validator = Validator::make($request->all(), [
             'nome' => ['sometimes', 'required', 'string', 'max:150'],
@@ -159,7 +159,7 @@ class PedidoController extends Controller
         $pedido->save();
 
         return response()->json([
-            'message' => 'Pedido atualizado com sucesso.',
+            'message' => 'Produto atualizado com sucesso.',
             'data' => [
                 'id' => $pedido->id,
                 'nome' => $pedido->nome,
@@ -173,15 +173,15 @@ class PedidoController extends Controller
     }
 
     /**
-     * DELETE /api/pedidos/{pedido}
+     * DELETE /api/produtos/{pedido}
      * Remove um pedido.
      */
-    public function destroy(Pedido $pedido)
+    public function destroy(Produto $pedido)
     {
         $pedido->delete();
 
         return response()->json([
-            'message' => 'Pedido removido com sucesso.'
+            'message' => 'Produto removido com sucesso.'
         ], 200);
     }
 }
