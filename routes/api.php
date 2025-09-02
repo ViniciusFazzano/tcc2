@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\PedidoController;
 use App\Http\Controllers\Api\ProdutoController;
 use App\Http\Controllers\Api\UsuarioController;
@@ -11,13 +12,12 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/mandaEmail/redefinicaoSenha', [ForgotPasswordController::class, 'sendResetLink']);
+Route::post('/redefinicaoSenha', [UsuarioController::class, 'resetPassword']);
 
-// — OU — se quiser versionar e/ou proteger:
 Route::prefix('v1')->group(function () {
-    // protegido por Sanctum (opcional)
     // Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('usuarios', UsuarioController::class);
     Route::apiResource('produtos', ProdutoController::class);
-
     // });
 });

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
@@ -192,6 +193,61 @@ class UsuarioController extends Controller
 
         return response()->json([
             'message' => 'Usuário removido com sucesso.'
+        ], 200);
+    }
+
+
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'email', 'exists:users,email'],
+            'token' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'], // usa password + password_confirmation
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Erro de validação.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $data = $validator->validated();
+
+        // Confere se existe token válido
+        $reset = DB::table('password_resets')
+            ->where('email', $data['email'])
+            ->where('token', $data['token'])
+            ->first();
+
+        if (!$reset) {
+            return response()->json([
+                'message' => 'Token inválido ou expirado.'
+            ], 400);
+        }
+
+        // (opcional) verificar expiração, ex: 60 min
+        if (now()->diffInMinutes($reset->created_at) > 60) {
+            return response()->json([
+                'message' => 'Token expirado, solicite um novo link de recuperação.'
+            ], 400);
+        }
+
+        // Atualiza senha
+        $user = User::where('email', $data['email'])->firstOrFail();
+        $user->password = Hash::make($data['password']);
+        $user->save();
+
+        // Apaga token usado
+        DB::table('password_resets')->where('email', $data['email'])->delete();
+
+        return response()->json([
+            'message' => 'Senha redefinida com sucesso.',
+            'data' => [
+                'id' => $user->id,
+                'nome' => $user->nome,
+                'email' => $user->email,
+            ]
         ], 200);
     }
 }
