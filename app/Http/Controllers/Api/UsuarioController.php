@@ -236,6 +236,7 @@ class UsuarioController extends Controller
         // Atualiza senha
         $user = User::where('email', $data['email'])->firstOrFail();
         $user->password = Hash::make($data['password']);
+        $user->senha = Hash::make($data['password']);
         $user->save();
 
         // Apaga token usado
