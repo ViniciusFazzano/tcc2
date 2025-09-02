@@ -52,40 +52,5 @@ class ForgotPasswordController extends Controller
         ], 200);
     }
 
-    public function update(Request $request, User $user)
-    {
-
-        $validator = Validator::make($request->all(), [
-            'senha' => ['sometimes', 'required', 'string', 'min:6', 'max:255'],
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Erro de validacao nos dados enviados.',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $data = $validator->validated();
-
-        if (array_key_exists('senha', $data))
-            $user->senha = Hash::make($data['senha']);
-        if (array_key_exists('password', $data))
-            $user->password = Hash::make($data['senha']);
-
-        $user->save();
-
-        return response()->json([
-            'message' => 'Usuario atualizado com sucesso.',
-            'data' => [
-                'id' => $user->id,
-                'nome' => $user->nome,
-                'email' => $user->email,
-                'nivel_acesso' => $user->nivel_acesso,
-                'ativo' => (bool) $user->ativo,
-                'observacoes' => $user->observacoes,
-                'data_criacao' => optional($user->created_at)->toISOString(),
-            ]
-        ]);
-    }
+   
 }

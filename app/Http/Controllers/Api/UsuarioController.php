@@ -202,7 +202,7 @@ class UsuarioController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => ['required', 'email', 'exists:users,email'],
             'token' => ['required', 'string'],
-            'password' => ['required', 'string', 'min:6', 'confirmed'], // usa password + password_confirmation
+            'password' => ['required', 'string', 'min:6'], // usa password + password_confirmation
         ]);
 
         if ($validator->fails()) {
