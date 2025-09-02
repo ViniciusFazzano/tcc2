@@ -62,7 +62,7 @@ class ProdutoController extends Controller
 
     /**
      * POST /api/produtos
-     * Cria um pedido.
+     * Cria um produto.
      */
     public function store(Request $request)
     {
@@ -83,50 +83,50 @@ class ProdutoController extends Controller
 
         $data = $validator->validated();
 
-        $pedido = new Produto();
-        $pedido->nome = $data['nome'];
-        $pedido->preco = (float) $data['preco'];
-        $pedido->estoque = (int) $data['estoque'];
-        $pedido->observacao = $data['observacao'] ?? null;
-        $pedido->ncm = $data['ncm'];
-        $pedido->save();
+        $produto = new Produto();
+        $produto->nome = $data['nome'];
+        $produto->preco = (float) $data['preco'];
+        $produto->estoque = (int) $data['estoque'];
+        $produto->observacao = $data['observacao'] ?? null;
+        $produto->ncm = $data['ncm'];
+        $produto->save();
 
         return response()->json([
             'message' => 'Produto criado com sucesso.',
             'data' => [
-                'id' => $pedido->id,
-                'nome' => $pedido->nome,
-                'preco' => (float) $pedido->preco,
-                'estoque' => (int) $pedido->estoque,
-                'ncm' => $pedido->ncm,
-                'observacao' => $pedido->observacao,
-                'data_criacao' => optional($pedido->created_at)->toISOString(),
+                'id' => $produto->id,
+                'nome' => $produto->nome,
+                'preco' => (float) $produto->preco,
+                'estoque' => (int) $produto->estoque,
+                'ncm' => $produto->ncm,
+                'observacao' => $produto->observacao,
+                'data_criacao' => optional($produto->created_at)->toISOString(),
             ]
         ], 201);
     }
 
     /**
-     * GET /api/produtos/{pedido}
-     * Mostra um pedido.
+     * GET /api/produtos/{produto}
+     * Mostra um produto.
      */
-    public function show(Produto $pedido)
+    public function show(Produto $produto)
     {
         return response()->json([
-            'id' => $pedido->id,
-            'nome' => $pedido->nome,
-            'preco' => (float) $pedido->preco,
-            'estoque' => (int) $pedido->estoque,
-            'ncm' => $pedido->ncm,
-            'observacao' => $pedido->observacao,
-            'data_criacao' => optional($pedido->created_at)->toISOString(),
+            'id' => $produto->id,
+            'nome' => $produto->nome,
+            'preco' => (float) $produto->preco,
+            'estoque' => (int) $produto->estoque,
+            'ncm' => $produto->ncm,
+            'observacao' => $produto->observacao,
+            'data_criacao' => optional($produto->created_at)->toISOString(),
         ]);
     }
 
     /**
-     * PUT/PATCH /api/produtos/{pedido}
-     * Atualiza um pedido.
+     * PUT/PATCH /api/produtos/{produto}
+     * Atualiza um produto.
      */
-    public function update(Request $request, Produto $pedido)
+    public function update(Request $request, Produto $produto)
     {
         $validator = Validator::make($request->all(), [
             'nome' => ['sometimes', 'required', 'string', 'max:150'],
@@ -146,39 +146,39 @@ class ProdutoController extends Controller
         $data = $validator->validated();
 
         if (array_key_exists('nome', $data))
-            $pedido->nome = $data['nome'];
+            $produto->nome = $data['nome'];
         if (array_key_exists('preco', $data))
-            $pedido->preco = (float) $data['preco'];
+            $produto->preco = (float) $data['preco'];
         if (array_key_exists('estoque', $data))
-            $pedido->estoque = (int) $data['estoque'];
+            $produto->estoque = (int) $data['estoque'];
         if (array_key_exists('observacao', $data))
-            $pedido->observacao = $data['observacao'];
+            $produto->observacao = $data['observacao'];
         if (array_key_exists('ncm', $data))
-            $pedido->ncm = $data['ncm'];
+            $produto->ncm = $data['ncm'];
 
-        $pedido->save();
+        $produto->save();
 
         return response()->json([
             'message' => 'Produto atualizado com sucesso.',
             'data' => [
-                'id' => $pedido->id,
-                'nome' => $pedido->nome,
-                'preco' => (float) $pedido->preco,
-                'estoque' => (int) $pedido->estoque,
-                'ncm' => $pedido->ncm,
-                'observacao' => $pedido->observacao,
-                'data_criacao' => optional($pedido->created_at)->toISOString(),
+                'id' => $produto->id,
+                'nome' => $produto->nome,
+                'preco' => (float) $produto->preco,
+                'estoque' => (int) $produto->estoque,
+                'ncm' => $produto->ncm,
+                'observacao' => $produto->observacao,
+                'data_criacao' => optional($produto->created_at)->toISOString(),
             ]
         ]);
     }
 
     /**
-     * DELETE /api/produtos/{pedido}
-     * Remove um pedido.
+     * DELETE /api/produtos/{produto}
+     * Remove um produto.
      */
-    public function destroy(Produto $pedido)
+    public function destroy(Produto $produto)
     {
-        $pedido->delete();
+        $produto->delete();
 
         return response()->json([
             'message' => 'Produto removido com sucesso.'
