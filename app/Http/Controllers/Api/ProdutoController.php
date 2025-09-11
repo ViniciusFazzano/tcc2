@@ -32,6 +32,7 @@ class ProdutoController extends Controller
                 });
             })
             ->when($request->filled('ncm'), fn($q) => $q->where('ncm', $request->ncm))
+            ->when($request->filled('solucao'), fn($q) => $q->where('solucao', $request->solucao))
             ->when($request->filled('preco_min'), fn($q) => $q->where('preco', '>=', (float) $request->preco_min))
             ->when($request->filled('preco_max'), fn($q) => $q->where('preco', '<=', (float) $request->preco_max))
             ->when($request->filled('estoque_min'), fn($q) => $q->where('estoque', '>=', (int) $request->estoque_min))
@@ -53,6 +54,7 @@ class ProdutoController extends Controller
                 'estoque' => (int) $p->estoque,
                 'ncm' => $p->ncm,
                 'observacao' => $p->observacao,
+                'solucao' => $p->solucao,
                 'data_criacao' => optional($p->created_at)->toISOString(),
             ];
         });
@@ -71,6 +73,7 @@ class ProdutoController extends Controller
             'preco' => ['required', 'numeric', 'min:0'],
             'estoque' => ['required', 'integer', 'min:0'],
             'observacao' => ['nullable', 'string', 'max:5000'],
+            'solucao' => ['nullable', 'string', 'max:150'],
             'ncm' => ['required', 'string', 'max:20'], // se quiser, troque por ['regex:/^\d{8}$/']
         ]);
 
@@ -89,6 +92,7 @@ class ProdutoController extends Controller
         $produto->estoque = (int) $data['estoque'];
         $produto->observacao = $data['observacao'] ?? null;
         $produto->ncm = $data['ncm'];
+        $produto->solucao = $data['solucao'];
         $produto->save();
 
         return response()->json([
@@ -99,6 +103,7 @@ class ProdutoController extends Controller
                 'preco' => (float) $produto->preco,
                 'estoque' => (int) $produto->estoque,
                 'ncm' => $produto->ncm,
+                'solucao' => $produto->solucao,
                 'observacao' => $produto->observacao,
                 'data_criacao' => optional($produto->created_at)->toISOString(),
             ]
@@ -117,6 +122,7 @@ class ProdutoController extends Controller
             'preco' => (float) $produto->preco,
             'estoque' => (int) $produto->estoque,
             'ncm' => $produto->ncm,
+            'solucao' => $produto->solucao,
             'observacao' => $produto->observacao,
             'data_criacao' => optional($produto->created_at)->toISOString(),
         ]);
@@ -134,6 +140,7 @@ class ProdutoController extends Controller
             'estoque' => ['sometimes', 'required', 'integer', 'min:0'],
             'observacao' => ['nullable', 'string', 'max:5000'],
             'ncm' => ['sometimes', 'required', 'string', 'max:20'],
+            'solucao' => ['sometimes', 'required', 'string', 'max:150'],
         ]);
 
         if ($validator->fails()) {
@@ -155,6 +162,8 @@ class ProdutoController extends Controller
             $produto->observacao = $data['observacao'];
         if (array_key_exists('ncm', $data))
             $produto->ncm = $data['ncm'];
+        if (array_key_exists('solucao', $data))
+            $produto->solucao = $data['solucao'];
 
         $produto->save();
 
@@ -166,7 +175,8 @@ class ProdutoController extends Controller
                 'preco' => (float) $produto->preco,
                 'estoque' => (int) $produto->estoque,
                 'ncm' => $produto->ncm,
-                'observacao' => $produto->observacao,
+                'solucao' => $produto->solucao,
+                'observacao' => $produto->observacao, 
                 'data_criacao' => optional($produto->created_at)->toISOString(),
             ]
         ]);
