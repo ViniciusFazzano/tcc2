@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('empresas_batedoras', function (Blueprint $table) {
+        Schema::create('empresa_batedoras', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
             $table->string('cnpj')->unique();
@@ -28,6 +28,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('empresas_batedoras');
+        Schema::dropIfExists('empresa_batedoras');
     }
 };

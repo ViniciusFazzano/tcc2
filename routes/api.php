@@ -1,10 +1,16 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ClienteController;
+use App\Http\Controllers\Api\EmpresaBatedoraController;
+use App\Http\Controllers\Api\FazendaController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\IaController;
+use App\Http\Controllers\Api\ItemPedidoController;
+use App\Http\Controllers\Api\PedidoController;
 use App\Http\Controllers\Api\ProdutoController;
 use App\Http\Controllers\Api\UsuarioController;
+
 
 use Illuminate\Support\Facades\Route;
 
@@ -23,5 +29,11 @@ Route::prefix('v1')->group(function () {
     // Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('usuarios', UsuarioController::class);
     Route::apiResource('produtos', ProdutoController::class);
+    Route::apiResource('clientes', ClienteController::class);
+    Route::apiResource('empresas-batedoras', EmpresaBatedoraController::class);
+    Route::apiResource('fazendas', FazendaController::class);
+    Route::apiResource('items-pedidos', ItemPedidoController::class);
+    Route::apiResource('pedidos', PedidoController::class);
+
     // });
 });

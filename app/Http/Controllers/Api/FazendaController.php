@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Fazenda;
+use App\Models\Fazenda;
 use Illuminate\Http\Request;
 
 class FazendaController extends Controller

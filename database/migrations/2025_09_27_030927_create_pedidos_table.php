@@ -13,7 +13,22 @@ return new class extends Migration
     {
         Schema::create('pedidos', function (Blueprint $table) {
             $table->id();
+
+            // Relacionamentos
+            $table->foreignId('cliente_id')->constrained('clientes')->onDelete('cascade');
+            $table->foreignId('fazenda_id')->constrained('fazendas')->onDelete('cascade');
+
+            // Campos do pedido
+            $table->date('data');
+            $table->decimal('valor_total', 12, 2);
+            $table->text('observacoes')->nullable();
+
             $table->timestamps();
+
+            // Índices úteis
+            $table->index(['cliente_id']);
+            $table->index(['fazenda_id']);
+            $table->index(['data']);
         });
     }
 

@@ -42,7 +42,7 @@ class ProdutoController extends Controller
             ? $request->get('order_by') : 'id';
         $orderDir = $request->get('order_dir') === 'asc' ? 'asc' : 'desc';
 
-        $perPage = (int) ($request->get('per_page', 15));
+        $perPage = (int) ($request->get('per_page', 50));
 
         $page = $query->orderBy($orderBy, $orderDir)->paginate($perPage);
 

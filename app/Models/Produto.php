@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use ItemPedido;
-use Pedido;
 
 class Produto extends Model
 {
