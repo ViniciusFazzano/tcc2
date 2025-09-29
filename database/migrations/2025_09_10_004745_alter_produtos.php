@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('produtos', function (Blueprint $table) {
             if (!Schema::hasColumn('produtos', 'solucao')) {
-                $table->string('solucao', 150)->nullable();
+                $table->string('solucao', 150);
             }
         });
     }
