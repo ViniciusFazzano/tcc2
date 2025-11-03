@@ -37,4 +37,10 @@ class Produto extends Model
     }
 
 
+    public function batidas()
+    {
+        return $this->hasMany(BatidaHomeopatica::class);
+    }
+
+
 }

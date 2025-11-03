@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BatidaHomeopaticaController;
 use App\Http\Controllers\Api\ClienteController;
 use App\Http\Controllers\Api\EmpresaBatedoraController;
 use App\Http\Controllers\Api\FazendaController;
@@ -34,6 +35,6 @@ Route::prefix('v1')->group(function () {
     Route::apiResource('fazendas', FazendaController::class);
     Route::apiResource('items-pedidos', ItemPedidoController::class);
     Route::apiResource('pedidos', PedidoController::class);
-
+    Route::apiResource('batidas', BatidaHomeopaticaController::class);
     // });
 });

@@ -27,6 +27,12 @@ class Pedido extends Model
         return $this->belongsTo(Fazenda::class);
     }
 
+    public function batidas()
+    {
+        return $this->hasMany(BatidaHomeopatica::class);
+    }
+
+
     // Pedido → Empresa Batedora
     public function empresaBatedora()
     {
