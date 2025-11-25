@@ -1,11 +1,13 @@
 <?php
 namespace App\Models;
 use App\Models\Produto;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ItemPedido extends Model
 {
-    protected $table = 'itens_pedido';
+    use HasFactory;
+    protected $table = 'item_pedidos';
 
     protected $fillable = [
         'pedido_id',

@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class BatidaHomeopatica extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'pedido_id',
         'produto_id',
@@ -25,11 +27,13 @@ class BatidaHomeopatica extends Model
         'qnt_caixa',
     ];
 
-    public function pedido() {
+    public function pedido()
+    {
         return $this->belongsTo(Pedido::class);
     }
 
-    public function produto() {
+    public function produto()
+    {
         return $this->belongsTo(Produto::class);
     }
 }

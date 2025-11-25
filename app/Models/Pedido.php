@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Pedido extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'data',
         'cliente_id',
@@ -46,10 +48,10 @@ class Pedido extends Model
     }
 
     // Pedido → muitos produtos através de ItemPedido (pivot)
-    public function produtos()
-    {
-        return $this->belongsToMany(Produto::class, 'itens_pedido')
-            ->withPivot('quantidade', 'preco_unitario')
-            ->withTimestamps();
-    }
+    // public function produtos()
+    // {
+    //     return $this->belongsToMany(Produto::class, 'itens_pedido')
+    //         ->withPivot('quantidade', 'preco_unitario')
+    //         ->withTimestamps();
+    // }
 }
