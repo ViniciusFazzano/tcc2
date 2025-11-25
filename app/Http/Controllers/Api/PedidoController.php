@@ -53,7 +53,26 @@ class PedidoController extends Controller
 
     public function show($id)
     {
-        $pedido = Pedido::with(['cliente', 'fazenda', 'itens.produto'])->findOrFail($id);
+        $pedido = Pedido::with([
+            'cliente',
+            'fazenda',
+            'itens.produto',
+            'batidas'
+        ])->findOrFail($id);
+
+        
+        $pedido->itens->transform(function ($item) use ($pedido) {
+
+            $batida = $pedido->batidas
+                ->where('pedido_id', $pedido->id)       
+                ->where('produto_id', $item->produto_id) 
+                ->first();                               
+
+            $item->produto->batida = $batida ?? null;
+
+            return $item;
+        });
+
         return response()->json($pedido);
     }
 
