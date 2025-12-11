@@ -88,11 +88,4 @@ http://127.0.0.1:8000
 ```bash
 php artisan test
 ```
-
-Ou:
-
-```bash
-vendor/bin/phpunit
-```
-
 ---
