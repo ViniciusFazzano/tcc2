@@ -103,33 +103,28 @@ class UsuarioController extends Controller
      * GET /api/usuarios/{user}
      * Mostra um usuário.
      */
-    public function show(User $user)
+    public function show($id)
     {
-        try {
-            $usuario = User::findOrFail($user->id);
+        $user = User::findOrFail($id);
 
-            return response()->json([
-                'id' => $usuario->id,
-                'nome' => $usuario->nome,
-                'email' => $usuario->email,
-                'nivel_acesso' => $usuario->nivel_acesso,
-                'ativo' => (bool) $usuario->ativo,
-                'observacoes' => $usuario->observacoes,
-                'data_criacao' => optional($usuario->created_at)->toISOString(),
-            ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'message' => 'Usuario nao encontrado.'
-            ], 404);
-        }
+        return response()->json([
+            'id' => $user->id,
+            'nome' => $user->nome,
+            'email' => $user->email,
+            'nivel_acesso' => $user->nivel_acesso,
+            'ativo' => (bool) $user->ativo,
+            'observacoes' => $user->observacoes,
+            'data_criacao' => optional($user->created_at)->toISOString(),
+        ]);
     }
 
     /**
-     * PUT/PATCH /api/usuarios/{user}
+     * PUT/PATCH /api/usuarios/{id}
      * Atualiza um usuário.
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, $id)
     {
+        $user = User::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
             'nome' => ['sometimes', 'required', 'string', 'max:150'],

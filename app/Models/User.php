@@ -30,11 +30,6 @@ class User extends Authenticatable
         'observacoes'
     ];
 
-    public function getRouteKeyName()
-    {
-        return 'email';
-    }
-
     /**
      * The attributes that should be hidden for serialization.
      *
